@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop Onboarding Wizard</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 800px;
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .hidden {
+      display: none;
+    }
+    /* Theme selection styling */
+    .theme-option {
+      cursor: pointer;
+      border: 2px solid transparent;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      width: 150px;
+    }
+    .theme-option img {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+    .theme-option:hover,
+    .theme-option.selected {
+      border-color: blue;
+    }
+    /* Store Logo Preview */
+    #storeLogoPreview {
+      max-width: 120px;
+      max-height: 80px;
+      object-fit: cover;
+      display: none;
+      border-radius: 4px;
+    }
+    .divider {
+      border-top: 1px solid #ccc;
+      margin: 20px 0;
+    }
+    /* Step 6: Single-column with scrollbar */
+    .scrollable-form {
+      max-height: 500px; /* Adjust as needed */
+      overflow-y: auto;
+      padding-right: 10px; /* For scrollbar spacing */
+    }
+    /* Product Image Previews */
+    #previewImage, #previewImage2 {
+      max-width: 100px;
+      max-height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      display: none;
+    }
+    /* Final Summary styling */
+    .summary-section h5 {
+      margin-top: 20px;
+    }
+    .summary-section img {
+      max-width: 100px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- STEP 1: Enter Mobile Number -->
+  <div id="step1">
+    <h3>Enter Mobile Number</h3>
+    <input type="text" id="mobile" class="form-control mb-3" placeholder="Enter your mobile number" />
+    <button class="btn btn-primary w-100" id="sendOtp">Send OTP</button>
+  </div>
+
+  <!-- STEP 2: Enter OTP -->
+  <div id="step2" class="hidden">
+    <h3>Enter OTP</h3>
+    <input type="text" id="otp" class="form-control mb-3" placeholder="Enter 4-digit OTP" />
+    <button class="btn btn-success w-100" id="verifyOtp">Verify OTP</button>
+  </div>
+
+  <!-- STEP 3: Set Up Store & Owner Details -->
+  <div id="step3" class="hidden">
+    <h3>Set Up the Store</h3>
+    <div class="row">
+      <!-- Left side: store fields -->
+      <div class="col-md-6">
+        <label class="form-label mt-2">Name of the Store</label>
+        <input type="text" id="storeName" class="form-control mb-3" placeholder="e.g. Books Store" />
+
+        <label class="form-label">Store Title</label>
+        <input type="text" id="storeTitle" class="form-control mb-3" placeholder="e.g. Trial online store" />
+
+        <label class="form-label">Add Logo</label>
+        <input type="file" id="storeLogo" class="form-control mb-3" accept="image/*" />
+
+        <label class="form-label">Owner Email</label>
+        <input type="email" id="ownerEmail" class="form-control mb-3" placeholder="e.g. owner@example.com" />
+
+        <label class="form-label">Owner Phone</label>
+        <input type="text" id="ownerPhone" class="form-control mb-3" placeholder="e.g. 9876543210" />
+
+        <button class="btn btn-warning w-100" id="createStore">Create Store</button>
+      </div>
+
+      <!-- Right side: live store preview -->
+      <div class="col-md-6">
+        <div class="border p-3 rounded">
+          <h5 class="mb-3">Store Preview</h5>
+          <img id="storeLogoPreview" alt="Logo Preview" />
+          <h6 id="previewStoreName" class="mt-2">Store Name</h6>
+          <p id="previewStoreTitle">Store Title</p>
+          <p>
+            <span id="previewOwnerEmail" class="d-block">owner@example.com</span>
+            <span id="previewOwnerPhone" class="d-block">1234567890</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Choose Theme -->
+  <div id="step4" class="hidden">
+    <h3>Apply a Theme</h3>
+    <div class="d-flex flex-wrap gap-4 justify-content-start">
+      <div class="theme-option" data-theme="Bags">
+        <img src="https://via.placeholder.com/150x100?text=Bags+Theme" alt="Bags Theme" />
+        <p class="mt-2">Bags theme <br /><small>(recommended)</small></p>
+      </div>
+      <div class="theme-option" data-theme="Flex">
+        <img src="https://via.placeholder.com/150x100?text=Flex+Theme" alt="Flex Theme" />
+        <p class="mt-2">
+          Flex theme <br />
+          <button class="btn btn-outline-primary btn-sm">Apply</button>
+        </p>
+      </div>
+      <div class="theme-option" data-theme="Chic">
+        <img src="https://via.placeholder.com/150x100?text=Chic+Theme" alt="Chic Theme" />
+        <p class="mt-2">
+          Chic theme <br />
+          <button class="btn btn-outline-primary btn-sm">Apply</button>
+        </p>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" id="themeNext">Next</button>
+  </div>
+
+  <!-- STEP 5: Add Product Type & Category -->
+  <div id="step5" class="hidden">
+    <h3>Let's add a type, Category, and Sub-category</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label">Add a product type</label>
+        <input type="text" id="productType" class="form-control mb-3" placeholder="e.g. books" />
+
+        <label class="form-label">Add a category (optional)</label>
+        <input type="text" id="productCategory" class="form-control mb-3" placeholder="e.g. academic book" />
+
+        <label class="form-label">Add a sub-category (optional)</label>
+        <input type="text" id="productSubCategory" class="form-control mb-3" placeholder="e.g. medical book" />
+      </div>
+      <div class="col-md-6 d-flex justify-content-center align-items-center">
+        <!-- Flowchart example (optional) -->
+        <img src="https://via.placeholder.com/300x200?text=Product+Flow" alt="Flowchart" class="img-fluid" />
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-secondary" id="backToThemes">Back</button>
+      <button class="btn btn-primary" id="typeNext">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Add First Product (single column + scroll) -->
+  <div id="step6" class="hidden">
+    <h3>Let's add your first product</h3>
+    <div class="scrollable-form mt-3">
+      <!-- Basic Details -->
+      <h5>Basic Details</h5>
+      <label class="form-label mt-2">Product name</label>
+      <input type="text" id="productName" class="form-control mb-3" placeholder="e.g. anatomy book" />
+
+      <label class="form-label">Product Description</label>
+      <textarea id="productDesc" class="form-control mb-3" rows="3" placeholder="Input text"></textarea>
+
+      <label class="form-label">Add Image(s)</label>
+      <input type="file" id="productImage" multiple class="form-control mb-3" />
+      <img id="previewImage" alt="Preview" />
+
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" value="" id="skuCheck" />
+        <label class="form-check-label" for="skuCheck">
+          This product has an SKU code
+        </label>
+      </div>
+      <input type="text" id="productSKU" class="form-control mb-3" placeholder="e.g. PROD0001" />
+
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" value="" id="hsnCheck" />
+        <label class="form-check-label" for="hsnCheck">
+          This product has an HSN/SAC code
+        </label>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Pricing Details -->
+      <h5>Pricing Details</h5>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" value="" id="gstCheck" />
+        <label class="form-check-label" for="gstCheck">
+          Price inclusive of GST
+        </label>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Net price</label>
+          <input type="number" id="netPrice" class="form-control" placeholder="e.g. 80" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">List price</label>
+          <input type="number" id="listPrice" class="form-control" placeholder="e.g. 100" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Discount percentage</label>
+          <input type="number" id="discount" class="form-control" placeholder="e.g. 40" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">GST rate</label>
+          <input type="number" id="gstRate" class="form-control" placeholder="e.g. 20" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Shipping charges (if any)</label>
+          <input type="number" id="shipping" class="form-control" placeholder="e.g. 40" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Stock level</label>
+          <input type="number" id="stockLevel" class="form-control" placeholder="e.g. 110" />
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- LIVE PREVIEW of Product Details -->
+      <h5>Product Preview</h5>
+      <div class="p-2 border">
+        <img id="previewImage2" src="https://via.placeholder.com/100x100?text=Preview" alt="Preview" style="max-width: 100px; border-radius:4px;" />
+        <h6 id="previewTitle" class="mt-2">Product title</h6>
+        <p id="previewDesc">Lorem ipsum dolor sit amet...</p>
+        <p id="previewPrices">Price: -- / Net: -- / Stock: --</p>
+      </div>
+
+    </div> <!-- end scrollable form -->
+
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-secondary" id="backToType">Back</button>
+      <button class="btn btn-success" id="finishWizard">Finish</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: Final Summary -->
+  <div id="step7" class="hidden summary-section">
+    <h3>All Details Summary</h3>
+    <div class="border p-3 rounded">
+      <h5>Store & Owner Details</h5>
+      <p><strong>Store Name:</strong> <span id="sumStoreName"></span></p>
+      <p><strong>Store Title:</strong> <span id="sumStoreTitle"></span></p>
+      <p><strong>Owner Email:</strong> <span id="sumOwnerEmail"></span></p>
+      <p><strong>Owner Phone:</strong> <span id="sumOwnerPhone"></span></p>
+      <img id="sumStoreLogo" alt="Store Logo" style="max-width:120px; border-radius:4px; margin-bottom:15px; display:none;" />
+      
+      <h5>Theme Selected</h5>
+      <p id="sumTheme"></p>
+      
+      <h5>Product Details</h5>
+      <p><strong>Product Name:</strong> <span id="sumProductName"></span></p>
+      <p><strong>Description:</strong> <span id="sumProductDesc"></span></p>
+      <p><strong>SKU:</strong> <span id="sumProductSKU"></span></p>
+      <p><strong>Pricing:</strong> <span id="sumPricing"></span></p>
+      <img id="sumProductImage" alt="Product Image" style="max-width:100px; border-radius:4px; display:none;" />
+    </div>
+    <button class="btn btn-primary w-100 mt-3" id="completeWizard">Complete Onboarding</button>
+  </div>
+
+</div><!-- container end -->
+
+<script>
+$(document).ready(function(){
+  // STEP 1: Send OTP
+  $("#sendOtp").click(function(){
+    let mobile = $("#mobile").val().trim();
+    if(mobile.length === 10 && /^\d+$/.test(mobile)){
+      $("#step1").hide();
+      $("#step2").fadeIn();
+    } else {
+      alert("Enter a valid 10-digit mobile number");
+    }
+  });
+
+  // STEP 2: Verify OTP
+  $("#verifyOtp").click(function(){
+    let otp = $("#otp").val().trim();
+    if(otp.length === 4 && /^\d+$/.test(otp)){
+      $("#step2").hide();
+      $("#step3").fadeIn();
+    } else {
+      alert("Enter a valid 4-digit OTP");
+    }
+  });
+
+  // STEP 3: Set Up Store & Owner Details
+  $("#createStore").click(function(){
+    let storeName = $("#storeName").val().trim();
+    let storeTitle = $("#storeTitle").val().trim();
+    let ownerEmail = $("#ownerEmail").val().trim();
+    let ownerPhone = $("#ownerPhone").val().trim();
+    if(storeName && storeTitle && ownerEmail && ownerPhone){
+      // Update live preview in step3
+      $("#previewStoreName").text(storeName);
+      $("#previewStoreTitle").text(storeTitle);
+      $("#previewOwnerEmail").text(ownerEmail);
+      $("#previewOwnerPhone").text(ownerPhone);
+      $("#step3").hide();
+      $("#step4").fadeIn();
+    } else {
+      alert("Please fill in all store and owner details.");
+    }
+  });
+
+  // Live preview for store fields
+  $("#storeName").on("input", function(){
+    $("#previewStoreName").text($(this).val() || "Store Name");
+  });
+  $("#storeTitle").on("input", function(){
+    $("#previewStoreTitle").text($(this).val() || "Store Title");
+  });
+  $("#ownerEmail").on("input", function(){
+    $("#previewOwnerEmail").text($(this).val() || "owner@example.com");
+  });
+  $("#ownerPhone").on("input", function(){
+    $("#previewOwnerPhone").text($(this).val() || "1234567890");
+  });
+
+  // Store logo upload -> preview
+  $("#storeLogo").on("change", function(e){
+    const file = e.target.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        $("#storeLogoPreview").attr("src", evt.target.result).show();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // STEP 4: Choose Theme
+  $(".theme-option").click(function(){
+    $(".theme-option").removeClass("selected");
+    $(this).addClass("selected");
+  });
+  $("#themeNext").click(function(){
+    if($(".theme-option.selected").length === 0){
+      alert("Please select a theme.");
+      return;
+    }
+    $("#step4").hide();
+    $("#step5").fadeIn();
+  });
+
+  // STEP 5: Product Type & Category
+  $("#backToThemes").click(function(){
+    $("#step5").hide();
+    $("#step4").fadeIn();
+  });
+  $("#typeNext").click(function(){
+    $("#step5").hide();
+    $("#step6").fadeIn();
+  });
+
+  // STEP 6: Add First Product
+  $("#backToType").click(function(){
+    $("#step6").hide();
+    $("#step5").fadeIn();
+  });
+  $("#finishWizard").click(function(){
+    let productName = $("#productName").val().trim();
+    if(!productName){
+      alert("Please enter a product name before finishing.");
+      return;
+    }
+    // Before moving to final summary, update summary details
+    $("#sumStoreName").text($("#storeName").val().trim());
+    $("#sumStoreTitle").text($("#storeTitle").val().trim());
+    $("#sumOwnerEmail").text($("#ownerEmail").val().trim());
+    $("#sumOwnerPhone").text($("#ownerPhone").val().trim());
+    if($("#storeLogoPreview").attr("src")) {
+      $("#sumStoreLogo").attr("src", $("#storeLogoPreview").attr("src")).show();
+    }
+    // Theme
+    $("#sumTheme").text($(".theme-option.selected").data("theme"));
+    // Product details
+    $("#sumProductName").text($("#productName").val().trim());
+    $("#sumProductDesc").text($("#productDesc").val().trim());
+    $("#sumProductSKU").text($("#productSKU").val().trim());
+    let net   = $("#netPrice").val() || "--";
+    let list  = $("#listPrice").val() || "--";
+    let stock = $("#stockLevel").val() || "--";
+    $("#sumPricing").text(`Price: ${list} / Net: ${net} / Stock: ${stock}`);
+    if($("#previewImage").attr("src")){
+      $("#sumProductImage").attr("src", $("#previewImage").attr("src")).show();
+    }
+    $("#step6").hide();
+    $("#step7").fadeIn();
+  });
+
+  // Live preview updates for product details
+  $("#productName").on("input", function(){
+    $("#previewTitle").text($(this).val() || "Product title");
+  });
+  $("#productDesc").on("input", function(){
+    $("#previewDesc").text($(this).val() || "Lorem ipsum dolor sit amet...");
+  });
+  $(".form-control").on("input", function(){
+    let net   = $("#netPrice").val() || "--";
+    let list  = $("#listPrice").val() || "--";
+    let stock = $("#stockLevel").val() || "--";
+    $("#previewPrices").text(`Price: ${list} / Net: ${net} / Stock: ${stock}`);
+  });
+
+  // IMAGE UPLOAD for product -> preview updates
+  $("#productImage").on("change", function(e){
+    const file = e.target.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        $("#previewImage").attr("src", evt.target.result).show();
+        $("#previewImage2").attr("src", evt.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Final Step: Complete Onboarding
+  $("#completeWizard").click(function(){
+    alert("Onboarding completed successfully! Redirecting to dashboard...");
+    // Here you can redirect to another page, e.g.,
+    // window.location.href = "dashboard.html";
+  });
+});
+</script>
+
+</body>
+</html>
+
+
